@@ -47,7 +47,7 @@ Unit.prototype.movement = function() {
     hero.body.velocity.x = 0;
     hero.body.velocity.y = 0;
     if (cursors.left.isDown) {
-        //
+        
     }
     else if (cursors.right.isDown) {
         //

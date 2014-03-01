@@ -102,5 +102,6 @@ function update() {
     game.physics.collide(hero, borders);
     game.physics.collide(hero, rocks);
     rinny.movement();
+    
  
 }

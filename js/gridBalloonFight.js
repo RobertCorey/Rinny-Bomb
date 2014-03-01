@@ -51,78 +51,6 @@ var drawBorderPath = function(path,x,y){
             game.add.sprite(x,y,path);
         }
 };
-var fastVertical = function(player,direction){
-    var relPos = player.x % 80;
-    var moveX;
-    var moveY;
-    if (relPos >= 20 && relPos <= 40) {
-        moveX = player.x - relPos + 20;
-        if(direction === 1 ){
-            moveY = player.y + 5;
-        }else{
-            moveY = player.y - 5;
-        }
-        player.reset(moveX,moveY);
-        if (player.y < 20) {
-            player.reset(player.x,20);
-        }
-        if (player.y > 500) {
-            player.reset(player.x,500);
-        }
-        return true;
-    }else if(relPos >= 0 && relPos <= 20){
-        moveX = player.x + relPos;
-        if(direction === 1){
-            moveY = player.y + 5;
-        }else if(direction === 0){
-            moveY = player.y - 5;
-        }
-        player.reset(moveX,moveY);
-        if (player.y < 20) {
-            player.reset(player.x,20);
-        }
-        if (player.y > 500) {
-            player.reset(player.x,500);
-        }
-        return true;
-    }
-};
-var fastHorizontal = function(player,direction){
-    var relPos = player.y % 80;
-    var moveX;
-    var moveY;
-    if (relPos >= 20 && relPos <= 40) {
-        moveX = player.y - relPos + 20;
-        if(direction === 1 ){
-            moveY = player.x + 5;
-        }else{
-            moveY = player.x - 5;
-        }
-        player.reset(moveX,moveY);
-        if (player.x < 20) {
-            player.reset(player.y,20);
-        }
-        if (player.x > 500) {
-            player.reset(player.y,500);
-        }
-        return true;
-    }else if(relPos >= 0 && relPos <= 20){
-        moveX = player.y + relPos;
-        if(direction === 1){
-            moveY = player.x + 5;
-        }else if(direction === 0){
-            moveY = player.x - 5;
-        }
-        player.reset(moveX,moveY);
-        if (player.x < 20) {
-            player.reset(player.y,20);
-        }
-        if (player.x > 500) {
-            player.reset(player.y,500);
-        }
-        return true;
-    }
-};
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
@@ -144,6 +72,7 @@ var villian;
 var borders;
 var cursors;
 var fps;
+var rinny;
 function create() {
     //draw border
 
@@ -164,7 +93,7 @@ function create() {
     drawBorderPath('border',20,20);
     //create our hero
     hero = game.add.sprite(20,20,'hero');
-
+    rinny = new Unit(hero);
     cursors = game.input.keyboard.createCursorKeys();
     fps = game.add.text(100,570,'FPS: 0',{font: '24px Arial',fill:'#96F140'});
 }
@@ -172,26 +101,6 @@ function create() {
 function update() {
     game.physics.collide(hero, borders);
     game.physics.collide(hero, rocks);
-    //stop player if not moving
-    hero.body.velocity.x = 0;
-    hero.body.velocity.y = 0;
-    if (cursors.left.isDown)
-    {
-        hero.body.velocity.x = -200;
-    }
-    else if (cursors.right.isDown)
-    {
-        hero.body.velocity.x = 200;
-    }else if (cursors.up.isDown)
-    {
-        if (!fastVertical(hero,0)) {
-        hero.body.velocity.y = 200;
-        }
-    }else if (cursors.down.isDown)
-    {
-        if (!fastVertical(hero,1)) {
-        hero.body.velocity.y = 200;
-        }
-    }
-    fps.content = 'FPS :' + /*game.time.fps*/ hero.x + " " + hero.y;
+    rinny.movement();
+ 
 }

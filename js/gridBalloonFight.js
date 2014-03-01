@@ -73,6 +73,7 @@ var borders;
 var cursors;
 var fps;
 var rinny;
+var fireButton;
 function create() {
     //draw border
 
@@ -95,6 +96,7 @@ function create() {
     hero = game.add.sprite(20,20,'hero');
     rinny = new Unit(hero);
     cursors = game.input.keyboard.createCursorKeys();
+    fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     fps = game.add.text(100,570,'FPS: 0',{font: '24px Arial',fill:'#96F140'});
 }
 
@@ -102,6 +104,6 @@ function update() {
     game.physics.collide(hero, borders);
     game.physics.collide(hero, rocks);
     rinny.movement();
-    
- 
+    rinny.weapons();
+    //fps.content = "X " + hero.x + "Y " + hero.y;
 }

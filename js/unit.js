@@ -1,6 +1,8 @@
-function Unit(spriteObject){
+function Unit(spriteObject,weapon){
     this.name = spriteObject;
+    this.missle = weapon;
     this.direction = 'down';
+    this.ammo = 1;
 }
 //Movement 
 //If a unit clips out of bounds teleport them back in
@@ -62,32 +64,157 @@ Unit.prototype.movement = function() {
     if (cursors.left.isDown) {
         this.direction = 'left';
         if (!this.clipH(this.direction)){
-        this.name.body.velocity.x = -200;
+        this.name.body.velocity.x = -300;
         }
     }
     else if (cursors.right.isDown) {
         this.direction = 'right';
         if (!this.clipH(this.direction)){
-            this.name.body.velocity.x = 200;
+            this.name.body.velocity.x = 300;
         }
     }
     else if (cursors.up.isDown) {
         this.direction = 'up';
         if (!this.clipV(this.direction)){
-            this.name.body.velocity.y = 200;  
+            this.name.body.velocity.y = 300;  
         }
     }
     else if (cursors.down.isDown) {
         this.direction = 'down';
         if (!this.clipV(this.direction)){
-            this.name.body.velocity.y = -200;  
+            this.name.body.velocity.y = -300;  
+        }
+    }
+};
+//Weapon Fire For Hero 
+Unit.prototype.weapons = function() {
+    if (fireButton.isDown && this.ammo > 0) {
+        this.fire();
+    }
+};
+Unit.prototype.fire = function(){
+    var MISSLE_SPEED = 500;
+    this.missle.reset(this.name.x + 10 ,this.name.y + 10);
+    this.ammo -= 1;
+    switch(this.direction){
+        case "left":
+            this.missle.body.velocity.x = -MISSLE_SPEED;
+            break;
+        case "right":
+            this.missle.body.velocity.x = MISSLE_SPEED;
+            break;
+        case "up":
+            this.missle.body.velocity.y = -MISSLE_SPEED;
+            break;
+        case "down":
+            this.missle.body.velocity.y = MISSLE_SPEED;
+            break;
+    }
+};
+Unit.prototype.reload = function(){
+    this.ammo += 1;
+};
+
+Unit.prototype.validMove = function() {
+    var moves = [false,false,false,false];
+    if (this.name.x % 80 >= 0 && this.name.x % 80 <= 40 && this.name.y > 25) {
+        moves[0] = true;
+    }
+    if (this.name.x % 80 >= 0 && this.name.x % 80 <= 40 && this.name.y < 495) {
+        moves[2] = true;
+    }
+    if (this.name.y % 80 >= 0 && this.name.y % 80 <= 40 && this.name.x > 25) {
+        moves[3] = true;
+    }
+    if (this.name.y % 80 >= 0 && this.name.y % 80 <= 40 && this.name.x < 725) {
+        moves[1] = true;
+    }
+    var randomnumber = false;
+    //
+    var failSafe = 0;
+    do{
+         randomnumber=Math.floor(Math.random()*4);
+         failSafe += 1;
+         if (failSafe > 20) {
+            break;
+         }
+    }while(!moves[randomnumber]);
+    if (failSafe < 20) {
+    return randomnumber;
+    }else{
+        this.name.reset(20,20);
+    }
+
+};
+
+Unit.prototype.AiMove = function() {
+    this.name.body.velocity.x = 0;
+    this.name.body.velocity.y = 0;
+    var move = this.validMove();
+        if (move === 3) {
+        this.direction = 'left';
+        this.clipH(this.direction);
+        this.name.body.velocity.x = -300;
+
+    }
+    else if (move === 1) {
+        this.direction = 'right';
+        this.clipH(this.direction);
+        this.name.body.velocity.x = 300;
+    }
+    else if (move === 0) {
+        this.direction = 'up';
+        this.clipV(this.direction);
+        this.name.body.velocity.y = -300;  
+
+    }
+    else if (move == 2) {
+        this.direction = 'down';
+        this.clipV(this.direction);
+        this.name.body.velocity.y = 300; 
+
+    }
+};
+Unit.prototype.getVision = function() {
+    var range = [0,0];
+    switch(this.direction){
+        case 'left':
+            range[1] = this.name.x;
+            return range;
+    }
+};
+Unit.prototype.AiFire = function(index,missleArray,targetX,targetY) {
+    if(this.ammo < 1){
+        this.tryReload();
+    }
+    if (this.ammo > 0) {
+        switch(this.direction){
+            case 'left':
+                if (this.name.y == targetY && this.name.x > targetX) {
+                    this.fire();
+                }
+                break;
+            case 'right':
+                if (this.name.y == targetY && this.name.x < targetX) {
+                    this.fire();
+                }
+                break;
+            case 'up':
+                if (this.name.x == targetX && this.name.y > targetY) {
+                    this.fire();
+                }
+                break;
+            case 'down':
+                if (this.name.x == targetX && this.name.y < targetY) {
+                    this.fire();
+                }
+                break;
         }
     }
 };
 
-Unit.prototype.weapons = function() {
-    if (fireButton.isDown) {
-        var temp = game.add.sprite(this.name.x,this.name.y,'missle');
-        temp.body.velocity.x = 500;
+Unit.prototype.tryReload = function() {
+    if (this.missle.x === -30) {
+        this.ammo += 1;
     }
 };

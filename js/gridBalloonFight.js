@@ -40,14 +40,8 @@ function create() {
     drawRocks('rock',rocks);
     //Game borders
     borders = game.add.group();
-    border = borders.create(0,0,'oobh');
-    border.body.immovable = true;
-    border = borders.create(0,20,'oobv');
-    border.body.immovable = true;
-    border = borders.create(780,20,'oobv');
-    border.body.immovable = true;
-    border = borders.create(0,540,'oobh');
-    border.body.immovable = true;
+    drawBorder(borders);
+    //outside path
     drawBorderPath('border',20,20);
     //create the missle for the hero
     missle = game.add.sprite(-80,-80,'missle');

@@ -32,6 +32,16 @@ var drawRocks = function(rock,group){
         y += 80;
     }
 };
+var drawBorder = function(group){
+    border = group.create(0,0,'oobh');
+    border.body.immovable = true;
+    border = group.create(0,20,'oobv');
+    border.body.immovable = true;
+    border = group.create(780,20,'oobv');
+    border.body.immovable = true;
+    border = group.create(0,540,'oobh');
+    border.body.immovable = true;
+};
 var drawBorderPath = function(path,x,y){
         for (var j = 0; j < 37; j++) {
             x += 20;

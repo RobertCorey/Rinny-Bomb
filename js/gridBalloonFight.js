@@ -1,5 +1,5 @@
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(1000, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
 function preload() {
     game.load.image('title','assets/title.png');
@@ -13,11 +13,13 @@ function preload() {
     game.load.image('oobv','assets/oobv.png');
     game.load.image('oobh','assets/oobh.png');
     game.load.image('emissle','assets/emissle.png');
+    game.load.audio('fire','assets/fire.mp3');
+    game.load.audio('wreck','assets/wreckspeed.mp3');
+    game.load.audio('death','assets/rinnyDeath.mp3');
 }
 var rocks;
 var missle;
 var hero;
-var villian;
 var borders;
 var cursors;
 var fps;
@@ -25,14 +27,18 @@ var rinny;
 var fireButton;
 var startButton;
 var lawyers;
-var lawyerUnits = [];
-var lawyerMissle;
-var lawyerMissles = [];
-var titleSprite;
+var titleScreen;
+var score = 0;
+var fire;
+var wreck;
+var rinnyDeath;
+var sound = true;
 function create() {
-    fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    //sound effects
+    fire = game.add.audio('fire');
+    wreck = game.add.audio('wreck');
+    rinnyDeath = game.add.audio('death');
     //Number of enemies to spawn
-    var LAWYERS = 8;
     //draw border
     drawBackground('tile1','tile2');
     //rocks can be clipped around
@@ -45,41 +51,47 @@ function create() {
     drawBorderPath('border',20,20);
     //create the missle for the hero
     missle = game.add.sprite(-80,-80,'missle');
-    //create the missles for the lawyers
-    lawyerMissle = game.add.group();
-    for (var i = 0; i < LAWYERS; i++) {
-        lawyerMissles[i] = lawyerMissle.create(-30,-30,'emissle');
-    }
     //create our hero
     hero = game.add.sprite(20,20,'hero');
-    rinny = new Unit(hero,missle);
+    rinny = new Unit(hero,missle,fire);
     //create all the badguys
-    lawyers = game.add.group();
-    for (i = 0; i < LAWYERS; i++) {
-        var xPos = 20;
-        var alien = lawyers.create(xPos + (i * 80), 500,'evil');
-        lawyerUnits[i] = new Unit(alien,lawyerMissles[i]);
-    }
+    lawyers = new EnemyHandler(lawyers,game);
+    lawyers.spawn(16, 10);
+    //input
     cursors = game.input.keyboard.createCursorKeys();
+    fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    startButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
     fps = game.add.text(100,570,'FPS: 0',{font: '24px Arial',fill:'#96F140'});
+    titleScreen = game.add.text(200,150,'',{font: '72px Arial',fill:'black'});
 }
-var test;
+var test = false;
+var highScore = 0;
 function update() {
-        playGame();
+    if (test === false) {
+        titleScreen.content = "Rinny Bomber\nPress S key";
+        lawyers.killAll();
+        if(startButton.justPressed()){
+            wreck.play();
+            titleScreen.content = "";
+            test = true;
+            lawyers.freeAll();
+        }
+    }
+    playGame();
+    if(lawyers.isClear()){
+        test = false;
+    }
 }
 
 function playGame () {
     collideRules();
     rinny.movement();
     rinny.weapons();
-    var tick = (game.time.time % 1000) % 2;
-    if(tick >= 0.5 && tick <= 0.6){
-        for (var i = 0; i < lawyerUnits.length; i++) {
-            lawyerUnits[i].AiMove();
-        }
+    lawyers.move(100);
+    lawyers.weaponsOnline(rinny);
+    fps.content = "FPS: " + game.time.fps + " Score: " + score + " High Score: " +highScore;
+    if (score > highScore) {
+        highScore = score;
     }
-    for (var j = 0; j < lawyerUnits.length; j++) {
-        lawyerUnits[j].AiFire(j,lawyerMissles,rinny.name.x,rinny.name.y);
-    }
-    fps.content = "fps: " + game.time.fps + " hero x: " + rinny.name.x + " hero y: " + rinny.name.y;
 }
+

@@ -1,7 +1,3 @@
-AI missle fire
-Death when hit AI Missle
-Death When hit AI
 game flow control
   restart
-points
 

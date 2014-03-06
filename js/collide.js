@@ -3,17 +3,18 @@ var collideRules = function() {
     game.physics.collide(hero, borders);
     game.physics.collide(hero, rocks);
     //lawyer collides
-    game.physics.collide(lawyers, borders);
-    game.physics.collide(lawyers, rocks);
+    game.physics.collide(lawyers.unitGroup, borders);
+    game.physics.collide(lawyers.unitGroup, rocks);
+    game.physics.collide(lawyers.unitGroup, hero,lawyerHero,null,this);
     //missle collides
     game.physics.collide(missle, borders, missleCollideWall,null,this);
     game.physics.collide(missle, rocks, missleCollideRock, null, this);
-    game.physics.collide(missle, lawyers, missleCollideLawyer, null, this);
-    //lawyer missle collides 
-    game.physics.collide(lawyerMissle,hero,missleHero,null,this);
-    game.physics.collide(lawyerMissle, borders,eMissleCollide,null,this);
-    game.physics.collide(lawyerMissle, rocks,eMissleCollide,null,this);
-    game.physics.collide(missle,lawyerMissle,missleCollideLawyerMissle,null,this);
+    game.physics.collide(missle, lawyers.unitGroup, missleCollideLawyer, null, this);
+    game.physics.collide(missle, lawyers.missleGroup, missleCollideLawyerMissle, null, this);
+    //enemy missle collides
+    game.physics.collide(lawyers.missleGroup,borders,eMissleCollide,null,this);
+    game.physics.collide(lawyers.missleGroup,rocks,eMissleCollide,null,this);
+    game.physics.collide(lawyers.missleGroup,hero,missleHero,null,this);
 };
 
 var missleCollideWall = function(missle,wall){
@@ -29,26 +30,28 @@ var eMissleCollide = function(missle,thingy){
 };
 var missleCollideLawyer = function(missle,lawyer){
     missle.reset(-80,-80);
+    lawyers.killOne(lawyer);
+    score += 10;
     rinny.reload();
-    var killMe = lawyers.getIndex(lawyer);
-    lawyerUnits.splice(killMe,killMe);
-    lawyer.destroy();
 };
 var missleCollideLawyerMissle = function(missle,lawyerMissle){
     missle.reset(-80,-80);
     lawyerMissle.reset(-30,-30);
     rinny.reload();
 };
-var lawyerCollideLawyer = function(lawyer1,lawyer2){
-    lawyer1.body.velocity.y *= -1;
-    lawyer1.body.velocity.x *= -1;
-    lawyer2.body.velocity.y *= -1;
-    lawyer2.body.velocity.x *= -1;
-};
 var missleHero = function(hero,missle){
-    hero.reset(20,20);
+    killHero();
     missle.reset(-30,-30);
+    rinnyDeath.play();
 };
-var lawyerHero = function(lawyer,hero){
+var lawyerHero = function(hero,lawyer){
+    killHero();
+    rinnyDeath.play();
+};
+
+function killHero () {
     hero.reset(20,20);
-};
+    titleScreen.content = "Score: " + score + "\nS to Restart";
+    score = 0;
+    test = false;
+}

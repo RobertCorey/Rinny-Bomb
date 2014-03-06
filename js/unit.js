@@ -1,27 +1,41 @@
-function Unit(spriteObject,weapon){
+function Unit(spriteObject,weapon,fireSound){
     this.name = spriteObject;
     this.missle = weapon;
     this.direction = 'down';
     this.ammo = 1;
+    this.trap = false;
+    this.fireSound = fireSound;
 }
+Unit.prototype.setTrapTrue = function() {
+    this.trap = true;
+};
+Unit.prototype.setTrapFalse = function() {
+    this.trap = false;
+};
 //Movement 
 //If a unit clips out of bounds teleport them back in
 Unit.prototype.teleport = function(){
     var xPos = this.name.x;
     var yPos = this.name.y;
-    if (xPos < 20) {
-        xPos = 20;
-    }else if(xPos > 740){
-        xPos = 740;
-    }
-    if (yPos < 20) {
-        yPos = 20;
-    }else if(yPos > 500){
-        yPos = 500;
-    }
-    if (xPos !== this.name.x || yPos !== this.name.y) {
-        this.name.reset(xPos,yPos);
-        return true;
+    if(this.trap === false){
+        if (xPos < 20) {
+            xPos = 20;
+        }else if(xPos > 740){
+            xPos = 740;
+        }
+        if (yPos < 20) {
+            yPos = 20;
+        }else if(yPos > 500){
+            yPos = 500;
+        }
+        if (xPos !== this.name.x || yPos !== this.name.y) {
+            this.name.reset(xPos,yPos);
+            return true;
+        }
+    }else{
+        if(xPos < 840 || xPos > 920 || yPos < 40 || yPos > 200){
+            this.name.reset(880,120);
+        }
     } 
 };
 Unit.prototype.clipV = function(direction) {
@@ -90,6 +104,7 @@ Unit.prototype.movement = function() {
 Unit.prototype.weapons = function() {
     if (fireButton.isDown && this.ammo > 0) {
         this.fire();
+        this.fireSound.play();
     }
 };
 Unit.prototype.fire = function(){
@@ -142,7 +157,7 @@ Unit.prototype.validMove = function() {
     if (failSafe < 20) {
     return randomnumber;
     }else{
-        this.name.reset(20,20);
+        this.name.reset(880,120);
     }
 
 };
@@ -175,19 +190,12 @@ Unit.prototype.AiMove = function() {
 
     }
 };
-Unit.prototype.getVision = function() {
-    var range = [0,0];
-    switch(this.direction){
-        case 'left':
-            range[1] = this.name.x;
-            return range;
-    }
-};
-Unit.prototype.AiFire = function(index,missleArray,targetX,targetY) {
+
+Unit.prototype.AiFire = function(missleArray,targetX,targetY) {
     if(this.ammo < 1){
         this.tryReload();
     }
-    if (this.ammo > 0) {
+    if (this.ammo > 0 && this.trap === false) {
         switch(this.direction){
             case 'left':
                 if (this.name.y == targetY && this.name.x > targetX) {

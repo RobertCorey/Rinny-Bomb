@@ -31,7 +31,26 @@ var drawRocks = function(rock,group){
         x = 60;
         y += 80;
     }
+    x = 800;
+    y = 0;
+    for (i = 0; i < 5; i++) {
+        rockInstance = group.create(x,y,rock);
+        rockInstance.body.immovable = true;
+        rockInstance = group.create(x,y + 240,rock);
+        rockInstance.body.immovable = true;
+        x += 40;
+    }
+    x = 960;
+    y = 40;
+    for (i = 0; i < 5; i++) {
+        rockInstance = group.create(x,y,rock);
+        rockInstance.body.immovable = true;
+        rockInstance = group.create(x - 160,y,rock);
+        rockInstance.body.immovable = true;
+        y += 40;    
+    }
 };
+
 var drawBorder = function(group){
     border = group.create(0,0,'oobh');
     border.body.immovable = true;
